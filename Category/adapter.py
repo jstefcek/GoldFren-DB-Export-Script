@@ -6,7 +6,7 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class adapter_data:
-    def __init__(self, sortiment, kategorie, obrazek, obrazek_nazev, vektor, vektor_nazev, oznaceni, typ, prumer, popis, poznamka):
+    def __init__(self, sortiment, kategorie, obrazek, obrazek_nazev, vektor, vektor_nazev, oznaceni, typ, prumer, popis, poznamka, publikovat):
         self.sortiment = sortiment
         self.kategorie = kategorie
         self.obrazek = obrazek
@@ -18,6 +18,7 @@ class adapter_data:
         self.prumer = prumer
         self.popis = popis
         self.poznamka = poznamka
+        self.publikovat = publikovat
 
 def export_adapter(conn: MySQLConnection, export_data: dict):
     """
@@ -31,22 +32,26 @@ def export_adapter(conn: MySQLConnection, export_data: dict):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''select 'Adaptér' sortiment, 
-        a.kategorie_kod kategorie, 
-        a.obrazek, 
-        a.obrazek_nahled obrazek_nazev, 
-        a.vektor, 
-        a.vektor_nazev, 
-        a.oznaceni, 
-        a.typ, 
-        a.prumer, 
-        a.popis, 
-        a.poznamka 
+    sql_query = '''select  s.nazev, 
+		a.kategorie_kod kategorie, 
+		a.obrazek, 
+		a.obrazek_nahled obrazek_nazev, 
+		a.vektor, 
+		a.vektor_nazev, 
+		a.oznaceni, 
+		a.typ, 
+		a.prumer, 
+		a.popis, 
+		a.poznamka, 
+		case 
+          when a.publikovat = '1' then 'Ano'
+          else 'Ne'
+        end publikovat
 from adapter a
-left join sortiment s on s.kod = a.sortiment_kod'''
+left join sortiment s on s.kod = a.sortiment_kod;'''
 
     # Fetch data from database
-    export_data = fetch_data(conn, sql_query, export_data, adapter_data)
+    export_data = fetch_data(conn, sql_query, export_data, adapter_data, 'Adaptér')
         
     # Returns adapter data
     return export_data

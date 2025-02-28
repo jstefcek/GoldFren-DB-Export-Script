@@ -14,7 +14,7 @@ def create_excel(export_data: dict, filename: str = "GoldFren_WebCatalog_V2.xlsx
         filename (str): Name of the output Excel file.
     """
     # Define output folder
-    output_folder = r"C:\Users\Trix Gaming PC\Desktop\Goldfren\Excel Output"
+    output_folder = r"C:\Users\Trix Gaming PC\Desktop\Goldfren\Scripts\GoldFren-DB-Export-Script\Excel Output"
     
     # Ensure the output directory exists
     os.makedirs(output_folder, exist_ok=True)

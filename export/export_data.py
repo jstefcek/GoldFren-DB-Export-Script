@@ -1,4 +1,4 @@
-def fetch_data(conn, sql_query, export_data, data_class, category_name='Adaptér'):
+def fetch_data(conn, sql_query, export_data, data_class, category_name):
     """
     Fetches data from database and maps it to adapter objects.
     
