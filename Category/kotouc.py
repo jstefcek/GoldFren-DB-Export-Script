@@ -6,8 +6,9 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class kotouc_data:
-    def __init__(self, Sortiment, Part_Number, kategorie, subkategorie, vyrobce, oznaceni, typ, objem, rok_od, rok_do, konkurence_braking, konkurence_ngbrakes, poznamka, publikovat):
+    def __init__(self, Sortiment, database_id, Part_Number, kategorie, subkategorie, vyrobce, oznaceni, typ, objem, rok_od, rok_do, konkurence_braking, konkurence_ngbrakes, poznamka, publikovat, pozice, pozice_eng):
         self.Sortiment = Sortiment
+        self.database_id = database_id
         self.Part_Number = Part_Number
         self.kategorie = kategorie
         self.subkategorie = subkategorie
@@ -21,6 +22,8 @@ class kotouc_data:
         self.konkurence_ngbrakes = konkurence_ngbrakes
         self.poznamka = poznamka
         self.publikovat = publikovat
+        self.pozice = pozice
+        self.pozice_eng = pozice_eng
         
 class kotouc_detail_data:
     def __init__(self, Sortiment, Kategorie, Part_Number, Typ, Konkurence_Braking, Konkurence_Ngbrakes, Od, Hd, Id, Thk, Poznamka):
@@ -72,8 +75,9 @@ def export_kotouc(conn: MySQLConnection, export_data):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''select distinct * from (
+    sql_query = '''select distinct rs.*, p.nazev as pozice, p.nazev_eng as pozice_eng from (
 SELECT 'Kotouč' as Sortiment,
+	k.kod,
 	k2.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -96,6 +100,7 @@ WHERE k.k_5 IS NOT NULL
 and k2.oznaceni is not null
 union
 SELECT 'Kotouč',
+	k.kod,
 	k2.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -118,6 +123,7 @@ WHERE k.k_5k IS NOT NULL
 and k2.oznaceni is not null
 union
 SELECT 'Kotouč',
+	k.kod,
 	k2.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -140,6 +146,7 @@ WHERE k.k_6 IS NOT NULL
 and k2.oznaceni is not null
 union
 SELECT 'Kotouč',
+	k.kod,
 	k2.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -162,6 +169,7 @@ WHERE k.k_6k IS NOT NULL
 and k2.oznaceni is not null
 union
 SELECT 'Kotouč',
+	k.kod,
 	k2.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -184,6 +192,7 @@ WHERE k.k_7 IS NOT NULL
 and k2.oznaceni is not null
 union
 SELECT 'Kotouč',
+	k.kod,
 	k2.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -206,6 +215,7 @@ WHERE k.k_7k IS NOT NULL
 and k2.oznaceni is not null
 union
 SELECT 'Kotouč',
+	k.kod,
 	k2.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -228,6 +238,7 @@ WHERE k.k_8 IS NOT NULL
 and k2.oznaceni is not null
 union
 SELECT 'Kotouč',
+	k.kod,
 	k2.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -248,8 +259,10 @@ FROM katalog k
 LEFT JOIN kotouc k2 ON FIND_IN_SET(k2.oznaceni, k.k_8k)
 WHERE k.k_8k IS NOT NULL
 and k2.oznaceni is not null
-) as combined_result
-order by Part_Number asc;'''
+) as rs
+left join vozidlo_kotouc vk on vk.kotouc_kod = rs.kod
+left join pozice p on p.kod = vk.pozice_kod
+order by rs.Part_Number asc'''
     
     # Fetch data from database
     export_data = fetch_data(conn, sql_query, export_data, kotouc_data, 'Kotouče')

@@ -6,8 +6,9 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class adapter_data:
-    def __init__(self, sortiment, Part_Number, kategorie, subkategorie, vyrobce, oznaceni, typ, objem, rok_od, rok_do, publikovat):
+    def __init__(self, sortiment, database_id, Part_Number, kategorie, subkategorie, vyrobce, oznaceni, typ, objem, rok_od, rok_do, publikovat, pozice, pozice_eng):
         self.sortiment = sortiment
+        self.database_id = database_id
         self.Part_Number = Part_Number
         self.kategorie = kategorie
         self.subkategorie = subkategorie
@@ -18,6 +19,8 @@ class adapter_data:
         self.rok_od = rok_od
         self.rok_do = rok_do
         self.publikovat = publikovat
+        self.pozice = pozice
+        self.pozice_eng = pozice_eng
         
 class adapter_detail_data:
     def __init__(self, Sortiment, kategorie, Part_Number, typ, prumer, popis, poznamka, publikovat):
@@ -75,8 +78,9 @@ def export_adapter(conn: MySQLConnection, export_data: dict):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''select distinct * from (
+    sql_query = '''select distinct rs.*, p.nazev as pozice, p.nazev_eng as pozice_eng  from (
 SELECT 'Adaptér',
+	a.kod,
 	a.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -96,6 +100,7 @@ WHERE k.a_18 IS NOT NULL
 and a.oznaceni is not null
 union
 SELECT 'Adaptér',
+	a.kod,
 	a.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -115,6 +120,7 @@ WHERE k.a_18k IS NOT NULL
 and a.oznaceni is not null
 union
 SELECT 'Adaptér',
+	a.kod,
 	a.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -134,6 +140,7 @@ WHERE k.a_19 IS NOT NULL
 and a.oznaceni is not null
 union
 SELECT 'Adaptér',
+	a.kod,
 	a.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -153,6 +160,7 @@ WHERE k.a_19k IS NOT NULL
 and a.oznaceni is not null
 union
 SELECT 'Adaptér',
+	a.kod,
 	a.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -172,6 +180,7 @@ WHERE k.a_20 IS NOT NULL
 and a.oznaceni is not null
 union
 SELECT 'Adaptér',
+	a.kod,
 	a.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -191,6 +200,7 @@ WHERE k.a_20k IS NOT NULL
 and a.oznaceni is not null
 union
 SELECT 'Adaptér',
+	a.kod,
 	a.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -210,6 +220,7 @@ WHERE k.a_21 IS NOT NULL
 and a.oznaceni is not null
 union
 SELECT 'Adaptér',
+	a.kod,
 	a.oznaceni as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -227,8 +238,10 @@ FROM katalog k
 LEFT JOIN adapter a ON a.oznaceni = k.a_21k
 WHERE k.a_21k IS NOT NULL
 and a.oznaceni is not null
-) as combined_result
-order by Part_Number asc'''
+) as rs
+left join vozidlo_adapter va on va.adapter_kod = rs.kod
+left join pozice p on p.kod = va.pozice_kod
+order by rs.Part_Number asc'''
 
     # Fetch data from database
     export_data = fetch_data(conn, sql_query, export_data, adapter_data, 'Adaptér')

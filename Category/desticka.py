@@ -6,8 +6,9 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class desticka_data:
-    def __init__(self, Sortiment, Part_Number, kategorie, subkategorie, vyrobce, oznaceni, typ, objem, rok_od, rok_do, publikovat):
+    def __init__(self, Sortiment, database_id, Part_Number, kategorie, subkategorie, vyrobce, oznaceni, typ, objem, rok_od, rok_do, publikovat, pozice, pozice_eng):
         self.Sortiment = Sortiment
+        self.database_id = database_id
         self.Part_Number = Part_Number
         self.kategorie = kategorie
         self.subkategorie = subkategorie
@@ -18,9 +19,14 @@ class desticka_data:
         self.rok_od = rok_od
         self.rok_do = rok_do
         self.publikovat = publikovat
+        self.pozice = pozice
+        self.pozice_eng = pozice_eng
         
 class desticka_detail_data:
-    def __init__(self, Sortiment, kategorie, Part_Number, typ, plech_a_material, plech_a_tloustka, plech_a_matrice, plech_b_material, plech_b_tloustka, plech_b_matrice, izolator_a_material, izolator_a_tloustka, izolator_a_matrice, izolator_b_material, izolator_b_tloustka, izolator_b_matrice, segment_a_material, segment_a_tloustka, segment_a_matrice, segment_b_material, segment_b_tloustka, segment_b_matrice, konkurence_sbs, konkurence_ebc, konkurence_ferodo, konkurence_a2z, konkurence_rapco, konkurence_grove, konkurence_cleveland, konkurence_matco, material, poznamka, oem_cisla, obchodni_nazev, publikovat):
+    def __init__(self, Sortiment, kategorie, Part_Number, typ, plech_a_material, plech_a_tloustka, plech_a_matrice, plech_b_material, plech_b_tloustka, plech_b_matrice, izolator_a_material, 
+                 izolator_a_tloustka, izolator_a_matrice, izolator_b_material, izolator_b_tloustka, izolator_b_matrice, segment_a_material, segment_a_tloustka, segment_a_matrice, 
+                 segment_b_material, segment_b_tloustka, segment_b_matrice, konkurence_sbs, konkurence_ebc, konkurence_ferodo, konkurence_a2z, konkurence_rapco, konkurence_grove, 
+                 konkurence_cleveland, konkurence_matco, material, poznamka, oem_cisla, obchodni_nazev, publikovat):
         self.Sortiment = Sortiment
         self.kategorie = kategorie
         self.Part_Number = Part_Number
@@ -99,8 +105,9 @@ def export_desticka(conn: MySQLConnection, export_data: dict):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''select distinct * from (
+    sql_query = '''select distinct rs.*, p.nazev as pozice, p.nazev_eng as pozice_eng from (
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -119,6 +126,7 @@ LEFT JOIN desticka d ON FIND_IN_SET(d.cislo, k.d_1) > 0
 WHERE k.d_1 IS NOT NULL
 UNION
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -138,6 +146,7 @@ WHERE k.d_1k IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -157,6 +166,7 @@ WHERE k.d_2k IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -176,6 +186,7 @@ WHERE k.d_2 IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -195,6 +206,7 @@ WHERE k.d_3 IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -214,6 +226,7 @@ WHERE k.d_3k IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -233,6 +246,7 @@ WHERE k.d_4 IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -252,6 +266,7 @@ WHERE k.d_4k IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -271,6 +286,7 @@ WHERE k.d_17 IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -290,6 +306,7 @@ WHERE k.d_17k IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -309,6 +326,7 @@ WHERE k.d_26 IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -328,6 +346,7 @@ WHERE k.d_26k IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -347,6 +366,7 @@ WHERE k.d_27 IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -366,6 +386,7 @@ WHERE k.d_27k IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -385,6 +406,7 @@ WHERE k.d_28 IS NOT NULL
 and d.cislo is not null
 union
 SELECT 'Destička',
+	d.kod,
 	LPAD(CAST(d.cislo AS UNSIGNED), 3, '0') as Part_Number,
 	k.kategorie,
 	k.subkategorie,
@@ -402,8 +424,10 @@ FROM katalog k
 LEFT JOIN desticka d ON d.cislo = k.d_28k
 WHERE k.d_28k IS NOT NULL
 and d.cislo is not null
-) as combined_results
-ORDER BY CAST(Part_Number AS UNSIGNED) ASC'''
+) as rs
+left join vozidlo_desticka vd on vd.desticka_kod = rs.kod
+left join pozice p on p.kod = vd.pozice_kod 
+ORDER BY Part_Number asc'''
 
     # Fetch data from database
     export_data = fetch_data(conn, sql_query, export_data, desticka_data, 'Destičky')
