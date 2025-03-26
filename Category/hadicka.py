@@ -6,28 +6,26 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class hadicka_data:
-    def __init__(self,Sortiment, database_id, Part_Number, kategorie, subkategorie, vyrobce, oznaceni, typ, objem, rok_od, rok_do, publikovat, poznamka, pozice, pozice_eng):
+    def __init__(self,Sortiment, Cislo_vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng):
         self.Sortiment = Sortiment
-        self.database_id = database_id
-        self.Part_Number = Part_Number
-        self.kategorie = kategorie
-        self.subkategorie = subkategorie
-        self.vyrobce = vyrobce
-        self.oznaceni = oznaceni
-        self.typ = typ
-        self.objem = objem
-        self.rok_od = rok_od
-        self.rok_do = rok_do
-        self.publikovat = publikovat
-        self.poznamka = poznamka
-        self.pozice = pozice
-        self.pozice_eng = pozice_eng
+        self.Cislo_vyrobku = Cislo_vyrobku
+        self.Kategorie = Kategorie
+        self.Subkategorie = Subkategorie
+        self.Vyrobce = Vyrobce
+        self.Oznaceni_vozidla = Oznaceni_vozidla
+        self.Typ = Typ
+        self.oObjembjem = Objem
+        self.Specialni_oznaceni = Specialni_oznaceni
+        self.Rok_od = Rok_od
+        self.Rok_do = Rok_do
+        self.Pozice = Pozice
+        self.Pozice_eng = Pozice_eng
         
 class hadicka_data_detail:
-    def __init__(self, Sortiment, Kategorie, Part_Number, Popis, Publikovat):
+    def __init__(self, Sortiment, Kategorie, Cislo_vyrobku, Popis, Publikovat):
         self.Sortiment = Sortiment
         self.Kategorie = Kategorie
-        self.Part_Number = Part_Number
+        self.Cislo_vyrobku = Cislo_vyrobku
         self.Popis = Popis
         self.Publikovat = Publikovat
         
@@ -43,13 +41,13 @@ def export_hadicka_detail(conn: MySQLConnection, export_data: dict):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''SELECT 'Hadička' as Sortiment, ifnull(kategorie_kod, 'Nedefinováno') as Kategorie, oznaceni as Part_Number, popis, 
+    sql_query = '''SELECT 'Hadička' as Sortiment, ifnull(kategorie_kod, 'Nedefinováno') as Kategorie, oznaceni as Cislo_vyrobku, popis, 
 case
 	  when publikovat = '1' then 'Ano'
 	  else 'Ne'
 	end publikovat
 FROM hadicka
-order by Part_Number asc;'''
+order by Cislo_vyrobku asc;'''
 
     # Fetch data from database
     export_data = fetch_data(conn, sql_query, export_data, hadicka_data_detail, 'Hadičky_Detail')
@@ -69,51 +67,66 @@ def export_hadicka(conn: MySQLConnection, export_data: dict):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''select distinct rs.*, p.nazev as pozice, p.nazev_eng as pozice_eng from (
-SELECT 'Hadička' as Sortiment,
-	h.kod, 
-	h.oznaceni as Part_Number,
-	k.kategorie,
-	k.subkategorie,
-	k.vyrobce,
-	k.oznaceni,
-	k.typ,
-	k.objem,
-	k.rok_od,
-	k.rok_do,
-	case
-	  when h.publikovat = '1' then 'Ano'
-	  else 'Ne'
-	end publikovat,
-	h.poznamka
-FROM katalog k
-LEFT JOIN hadicka h ON h.oznaceni = k.h_13
-WHERE k.h_13 IS NOT NULL
-and h.oznaceni is not null
-union 
-SELECT 'Hadička' as Sortiment,
-	h.kod, 
-	h.oznaceni as Part_Number,
-	k.kategorie,
-	k.subkategorie,
-	k.vyrobce,
-	k.oznaceni,
-	k.typ,
-	k.objem,
-	k.rok_od,
-	k.rok_do,
-	case
-	  when h.publikovat = '1' then 'Ano'
-	  else 'Ne'
-	end publikovat,
-	h.poznamka
-FROM katalog k
-LEFT JOIN hadicka h ON h.oznaceni = k.h_15
-WHERE k.h_15 IS NOT NULL
-and h.oznaceni is not null) as rs
-left join vozidlo_hadicka vh on vh.hadicka_kod = rs.kod
-left join pozice p on p.kod = vh.pozice_kod
-order by rs.Part_Number asc'''
+    sql_query = '''select
+	'Hadička' as Sortiment,
+	ha.oznaceni as Cislo_vyrobku,
+	ka.nazev as Kategorie,
+	sk.nazev as Subkategorie,
+	vr.nazev as Vyrobce,
+	CONCAT(
+            		vr.nazev,
+            		' ',
+            
+            	if (
+            		ISNULL(vz.typ),
+            		'',
+            		CONCAT(vz.typ, ' ')
+            	),
+            
+            if (
+            	ISNULL(vz.objem),
+            	'',
+            	CONCAT(vz.objem, ' ')
+            ),
+            
+            if (
+            	ISNULL(vz.oznaceni),
+            	'',
+            	CONCAT(vz.oznaceni, ' ')
+            ),
+            
+            if (
+            	ISNULL(vz.rok_od),
+            	'',
+            	CONCAT(vz.rok_od, '-')
+            ),
+            
+            if (
+            	ISNULL(vz.rok_do),
+            	'',
+            	CONCAT(
+            
+            		if (ISNULL(vz.rok_od), '-', ''),
+            		vz.rok_do
+            	)
+            )
+            	) as Oznaceni_vozidla,
+	vz.typ,
+	vz.objem,
+	vz.oznaceni as Specialni_oznaceni,
+	vz.rok_od,
+	vz.rok_do,
+	pz.nazev as Pozice,
+	pz.nazev_eng as Pozice_eng
+from vozidlo_hadicka vb
+inner join vozidlo vz on vb.vozidlo_kod = vz.kod
+inner join vyrobce vr on vz.vyrobce_kod = vr.kod
+inner join pozice pz on vb.pozice_kod = pz.kod
+inner join subkategorie sk on vz.subkategorie_kod = sk.kod
+inner join kategorie ka on sk.kategorie_kod = ka.kod
+inner join hadicka ha on vb.hadicka_kod = ha.kod
+order by ha.oznaceni asc
+limit 18446744073709551615;'''
 
     # Fetch data from database
     export_data = fetch_data(conn, sql_query, export_data, hadicka_data, 'Hadičky')

@@ -33,7 +33,7 @@ def main_process():
     conn.close()
     
     # Export to excel pivot table
-    create_excel(export_data, "GoldFren_WebCatalog_V4.xlsx")
+    create_excel(export_data, "GoldFren_WebCatalog_V5.xlsx")
     
     # Log
     print('[INFO] - Export dat byl dokončen')
