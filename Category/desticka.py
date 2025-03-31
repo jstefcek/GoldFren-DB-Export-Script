@@ -6,7 +6,7 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class desticka_data:
-    def __init__(self, Sortiment, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng):
+    def __init__(self, Sortiment, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publikovat):
         self.Sortiment = Sortiment
         self.Cislo_Vyrobku = Cislo_Vyrobku
         self.Kategorie = Kategorie
@@ -20,6 +20,7 @@ class desticka_data:
         self.Rok_do = Rok_do
         self.Pozice = Pozice
         self.Pozice_eng = Pozice_eng
+        self.Publikovat = Publikovat
         
 class desticka_detail_data:
     def __init__(self, Sortiment, kategorie, Cislo_Vyrobku, typ, plech_a_material, plech_a_tloustka, plech_a_matrice, plech_b_material, plech_b_tloustka, plech_b_matrice, izolator_a_material, 
@@ -106,7 +107,7 @@ def export_desticka(conn: MySQLConnection, export_data: dict):
     # Prepare SQL statement
     sql_query = '''select
 	'Destička' as Sortiment,
-	lpad(de.cislo, 3, '0') as Cislo_Vyrobku,
+	de.cislo as Part_Number,
 	ka.nazev as Kategorie,
 	sk.nazev as Subkategorie,
 	vr.nazev as Vyrobce,
@@ -154,7 +155,11 @@ def export_desticka(conn: MySQLConnection, export_data: dict):
 	vz.rok_od as Rok_od,
 	vz.rok_do as Rok_do,
 	pz.nazev as Pozice,
-	pz.nazev_eng as Pozice_eng
+	pz.nazev_eng as Pozice_eng,
+	case 
+	  when de.publikovat = 1 then 'Ano'
+	  else 'Ne'
+	end as 'Publikovat'
 from vozidlo_desticka vd
 inner join vozidlo vz on vd.vozidlo_kod = vz.kod
 inner join vyrobce vr on vz.vyrobce_kod = vr.kod
@@ -162,7 +167,7 @@ inner join pozice pz on vd.pozice_kod = pz.kod
 inner join subkategorie sk on vz.subkategorie_kod = sk.kod
 inner join kategorie ka on sk.kategorie_kod = ka.kod
 inner join desticka de on vd.desticka_kod = de.kod
-order by lpad(de.cislo, 3, '0') asc
+order by cast(de.cislo as UNSIGNED) asc
 limit 18446744073709551615;'''
 
     # Fetch data from database

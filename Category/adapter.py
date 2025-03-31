@@ -6,7 +6,7 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class adapter_data:
-    def __init__(self, Sortiment, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng):
+    def __init__(self, Sortiment, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publiovat):
         self.Sortiment = Sortiment
         self.Cislo_Vyrobku = Cislo_Vyrobku
         self.Kategorie = Kategorie
@@ -20,6 +20,7 @@ class adapter_data:
         self.Rok_do = Rok_do
         self.Pozice = Pozice
         self.Pozice_eng = Pozice_eng
+        self.Publikovat = Publiovat
         
 class adapter_detail_data:
     def __init__(self, Sortiment, kategorie, Cislo_Vyrobku, typ, prumer, popis, poznamka, publikovat):
@@ -127,7 +128,11 @@ def export_adapter(conn: MySQLConnection, export_data: dict):
 	vz.rok_od,
 	vz.rok_do,
 	pz.nazev as pozice,
-	pz.nazev_eng as pozice_eng
+	pz.nazev_eng as pozice_eng,
+    case 
+	  when ad.publikovat = 1 then 'Ano'
+	  else 'Ne'
+	end as 'Publikovat'
 from vozidlo_adapter as vk
 inner join vozidlo as vz on vk.vozidlo_kod = vz.kod
 inner join vyrobce as vr on vz.vyrobce_kod = vr.kod

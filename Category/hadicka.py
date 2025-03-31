@@ -6,7 +6,7 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class hadicka_data:
-    def __init__(self,Sortiment, Cislo_vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng):
+    def __init__(self,Sortiment, Cislo_vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publikovat):
         self.Sortiment = Sortiment
         self.Cislo_vyrobku = Cislo_vyrobku
         self.Kategorie = Kategorie
@@ -20,6 +20,7 @@ class hadicka_data:
         self.Rok_do = Rok_do
         self.Pozice = Pozice
         self.Pozice_eng = Pozice_eng
+        self.Publikovat = Publikovat
         
 class hadicka_data_detail:
     def __init__(self, Sortiment, Kategorie, Cislo_vyrobku, Popis, Publikovat):
@@ -117,7 +118,11 @@ def export_hadicka(conn: MySQLConnection, export_data: dict):
 	vz.rok_od,
 	vz.rok_do,
 	pz.nazev as Pozice,
-	pz.nazev_eng as Pozice_eng
+	pz.nazev_eng as Pozice_eng,
+    case 
+        when ha.publikovat = 1 then 'Ano'
+        else 'Ne'
+    end as 'Publikovat'
 from vozidlo_hadicka vb
 inner join vozidlo vz on vb.vozidlo_kod = vz.kod
 inner join vyrobce vr on vz.vyrobce_kod = vr.kod
