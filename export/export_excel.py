@@ -52,7 +52,7 @@ def create_excel(export_data: dict, filename: str = "GoldFren_WebCatalog_V2.xlsx
         table.tableStyleInfo = style
         ws.add_table(table)
 
-        # Auto-adjust column widths to "ready" columns (i.e. set width based on max content length)
+        # Auto-adjust column widths
         for col in ws.columns:
             max_length = 0
             col_letter = col[0].column_letter
