@@ -6,12 +6,14 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class hadicka_data:
-    def __init__(self,Sortiment, Cislo_vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publikovat):
+    def __init__(self, Sortiment, Kod_Hadicka, Cislo_vyrobku, Kategorie, Subkategorie, Vyrobce, Vozidlo_Kod, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publikovat):
         self.Sortiment = Sortiment
+        self.Kod_Hadicka = Kod_Hadicka
         self.Cislo_vyrobku = Cislo_vyrobku
         self.Kategorie = Kategorie
         self.Subkategorie = Subkategorie
         self.Vyrobce = Vyrobce
+        self.Vozidlo_Kod = Vozidlo_Kod
         self.Oznaceni_vozidla = Oznaceni_vozidla
         self.Typ = Typ
         self.oObjembjem = Objem
@@ -23,7 +25,8 @@ class hadicka_data:
         self.Publikovat = Publikovat
         
 class hadicka_data_detail:
-    def __init__(self, Sortiment, Kategorie, Cislo_vyrobku, Popis, Publikovat):
+    def __init__(self, Kod, Sortiment, Kategorie, Cislo_vyrobku, Popis, Publikovat):
+        self.Kod = Kod
         self.Sortiment = Sortiment
         self.Kategorie = Kategorie
         self.Cislo_vyrobku = Cislo_vyrobku
@@ -42,7 +45,7 @@ def export_hadicka_detail(conn: MySQLConnection, export_data: dict):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''SELECT 'Hadička' as Sortiment, ifnull(kategorie_kod, 'Nedefinováno') as Kategorie, oznaceni as Cislo_vyrobku, popis, 
+    sql_query = '''SELECT kod as Kod, 'Hadička' as Sortiment, ifnull(kategorie_kod, 'Nedefinováno') as Kategorie, oznaceni as Cislo_vyrobku, popis, 
 case
 	  when publikovat = '1' then 'Ano'
 	  else 'Ne'
@@ -70,10 +73,12 @@ def export_hadicka(conn: MySQLConnection, export_data: dict):
     # Prepare SQL statement
     sql_query = '''select
 	'Hadička' as Sortiment,
+    ha.kod as Kod_Hadicka,
 	ha.oznaceni as Cislo_vyrobku,
 	ka.nazev as Kategorie,
 	sk.nazev as Subkategorie,
 	vr.nazev as Vyrobce,
+    vz.kod as Vozidlo_Kod,
 	CONCAT(
             		vr.nazev,
             		' ',

@@ -6,12 +6,14 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class adapter_data:
-    def __init__(self, Sortiment, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publiovat):
+    def __init__(self, Sortiment, Kod_Adapter, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Vozidlo_Kod, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publiovat):
         self.Sortiment = Sortiment
+        self.Kod_Adapter = Kod_Adapter
         self.Cislo_Vyrobku = Cislo_Vyrobku
         self.Kategorie = Kategorie
         self.Subkategorie = Subkategorie
         self.Vyrobce = Vyrobce
+        self.Vozidlo_Kod = Vozidlo_Kod
         self.Oznaceni_vozidla = Oznaceni_vozidla
         self.Typ = Typ
         self.objem = Objem
@@ -23,7 +25,8 @@ class adapter_data:
         self.Publikovat = Publiovat
         
 class adapter_detail_data:
-    def __init__(self, Sortiment, kategorie, Cislo_Vyrobku, typ, prumer, popis, poznamka, publikovat):
+    def __init__(self, Kod, Sortiment, kategorie, Cislo_Vyrobku, typ, prumer, popis, poznamka, publikovat):
+        self.Kod = Kod
         self.Sortiment = Sortiment
         self.kategorie = kategorie
         self.Cislo_Vyrobku = Cislo_Vyrobku
@@ -45,7 +48,8 @@ def export_adapter_detail(conn: MySQLConnection, export_data):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''select s.nazev as Sortiment, 
+    sql_query = '''select a.kod as Kod,
+        s.nazev as Sortiment, 
 		a.kategorie_kod kategorie, 
 		a.oznaceni as Cislo_Vyrobku, 
 		a.typ, 
@@ -80,10 +84,12 @@ def export_adapter(conn: MySQLConnection, export_data: dict):
     # Prepare SQL statement
     sql_query = '''select
 	'Adaptér' as Sortiment,
+    ad.kod as Kod_Adapter,
  	ad.oznaceni as Cislo_Vyrobku,
 	ka.nazev as Kategorie,
 	sk.nazev as Subkategorie,
 	vr.nazev as vyrobce,
+    vz.kod as Vozidlo_Kod,
 	CONCAT(
             		vr.nazev,
             		' ',

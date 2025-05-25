@@ -6,12 +6,14 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class desticka_data:
-    def __init__(self, Sortiment, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publikovat):
+    def __init__(self, Sortiment, Kod_Desticky, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Vozidlo_Kod, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publikovat):
         self.Sortiment = Sortiment
+        self.Kod_Desticky = Kod_Desticky
         self.Cislo_Vyrobku = Cislo_Vyrobku
         self.Kategorie = Kategorie
         self.Subkategorie = Subkategorie
         self.Vyrobce = Vyrobce
+        self.Vozidlo_Kod = Vozidlo_Kod
         self.Oznaceni_vozidla = Oznaceni_vozidla
         self.Typ = Typ
         self.Objem = Objem
@@ -23,10 +25,11 @@ class desticka_data:
         self.Publikovat = Publikovat
         
 class desticka_detail_data:
-    def __init__(self, Sortiment, kategorie, Cislo_Vyrobku, typ, plech_a_material, plech_a_tloustka, plech_a_matrice, plech_b_material, plech_b_tloustka, plech_b_matrice, izolator_a_material, 
+    def __init__(self, Kod, Sortiment, kategorie, Cislo_Vyrobku, typ, plech_a_material, plech_a_tloustka, plech_a_matrice, plech_b_material, plech_b_tloustka, plech_b_matrice, izolator_a_material, 
                  izolator_a_tloustka, izolator_a_matrice, izolator_b_material, izolator_b_tloustka, izolator_b_matrice, segment_a_material, segment_a_tloustka, segment_a_matrice, 
                  segment_b_material, segment_b_tloustka, segment_b_matrice, konkurence_sbs, konkurence_ebc, konkurence_ferodo, konkurence_a2z, konkurence_rapco, konkurence_grove, 
                  konkurence_cleveland, konkurence_matco, material, poznamka, oem_cisla, obchodni_nazev, publikovat):
+        self.Kod = Kod
         self.Sortiment = Sortiment
         self.kategorie = kategorie
         self.Cislo_Vyrobku = Cislo_Vyrobku
@@ -75,7 +78,7 @@ def export_desticka_detail(conn: MySQLConnection, export_data: dict):
         export_data (dict): Exported data for excel
     """
     # Prepare SQL statement
-    sql_query = '''SELECT 'Destičká' as Sortiment, IFNULL(k.nazev, 'Nedefinováno') kategorie, d.cislo as Cislo_Vyrobku, IFNULL(dt.nazev, 'Nedefinováno') typ, 
+    sql_query = '''SELECT d.kod as Kod, 'Destičká' as Sortiment, IFNULL(k.nazev, 'Nedefinováno') kategorie, d.cislo as Cislo_Vyrobku, IFNULL(dt.nazev, 'Nedefinováno') typ, 
 d.plech_a_material, d.plech_a_tloustka, d.plech_a_matrice, d.plech_b_material, d.plech_b_tloustka, d.plech_b_matrice, 
 d.izolator_a_material, d.izolator_a_tloustka, d.izolator_a_matrice, d.izolator_b_material, d.izolator_b_tloustka, 
 d.izolator_b_matrice, d.segment_a_material, d.segment_a_tloustka, d.segment_a_matrice, d.segment_b_material, d.segment_b_tloustka, 
@@ -107,10 +110,12 @@ def export_desticka(conn: MySQLConnection, export_data: dict):
     # Prepare SQL statement
     sql_query = '''select
 	'Destička' as Sortiment,
+    de.kod as Kod_Desticky,
 	de.cislo as Part_Number,
 	ka.nazev as Kategorie,
 	sk.nazev as Subkategorie,
 	vr.nazev as Vyrobce,
+    vz.kod as Vozidlo_Kod,
 	CONCAT(
             		vr.nazev,
             		' ',
