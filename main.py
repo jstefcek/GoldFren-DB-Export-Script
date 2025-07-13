@@ -7,7 +7,7 @@ from Category.desticka import export_desticka, export_desticka_detail
 from Category.kotouc import export_kotouc, export_kotouc_detail
 from Category.hadicka import export_hadicka, export_hadicka_detail
 from export.export_excel import create_excel
-
+from Category.vozidla import export_vozidla
 
 def main_process():
     """
@@ -28,12 +28,13 @@ def main_process():
     export_data = export_kotouc_detail(conn, export_data)
     export_data = export_hadicka(conn, export_data)
     export_data = export_hadicka_detail(conn, export_data)
+    export_data = export_vozidla(conn, export_data)
     
     # Ukonceni connectiony do DB
     conn.close()
     
     # Export to excel pivot table
-    create_excel(export_data, "GoldFren_WebCatalog_V7.xlsx")
+    create_excel(export_data, "GoldFren_WebCatalog_V8.xlsx")
     
     # Log
     print('[INFO] - Export dat byl dokončen')
