@@ -6,7 +6,8 @@ from mysql.connector import MySQLConnection
 
 # Custom class
 class desticka_data:
-    def __init__(self, Sortiment, Kod_Desticky, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Vozidlo_Kod, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, Pozice, Pozice_eng, Publikovat):
+    def __init__(self, Sortiment, Kod_Desticky, Cislo_Vyrobku, Kategorie, Subkategorie, Vyrobce, Vozidlo_Kod, Oznaceni_vozidla, Typ, Objem, Specialni_oznaceni, Rok_od, Rok_do, 
+                 Pozice, Pozice_eng, SBS, EBC, Ferodo, A2Z, Rapco, Grove, Cleveland, Matco, Publikovat):
         self.Sortiment = Sortiment
         self.Kod_Desticky = Kod_Desticky
         self.Cislo_Vyrobku = Cislo_Vyrobku
@@ -22,6 +23,14 @@ class desticka_data:
         self.Rok_do = Rok_do
         self.Pozice = Pozice
         self.Pozice_eng = Pozice_eng
+        self.SBS = SBS
+        self.EBC = EBC
+        self.Ferodo = Ferodo
+        self.A2Z = A2Z
+        self.Rapco = Rapco
+        self.Grove = Grove
+        self.Cleveland = Cleveland
+        self.Matco = Matco
         self.Publikovat = Publikovat
         
 class desticka_detail_data:
@@ -161,6 +170,14 @@ def export_desticka(conn: MySQLConnection, export_data: dict):
 	vz.rok_do as Rok_do,
 	pz.nazev as Pozice,
 	pz.nazev_eng as Pozice_eng,
+	de.konkurence_sbs as SBS,
+	de.konkurence_ebc as EBC,
+	de.konkurence_ferodo as Ferodo,
+	de.konkurence_a2z as A2Z,
+	de.konkurence_rapco as Rapco,
+	de.konkurence_grove as Grove,
+	de.konkurence_cleveland as Cleveland,
+	de.konkurence_matco as Matco,
 	case 
 	  when de.publikovat = 1 then 'Ano'
 	  else 'Ne'
